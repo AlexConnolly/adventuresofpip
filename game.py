@@ -18,44 +18,44 @@ def RunGame(width, height, fps, scene):
 		{"id": "1", "x": "0", "y": "0", "width": "24", "height": "26"},
 		{"id": "2", "x": "24", "y": "0", "width": "24", "height": "26"},
 		{"id": "3", "x": "48", "y": "0", "width": "24", "height": "26"},
-		{"id": "4", "x": "74", "y": "0", "width": "24", "height": "26"},
+		{"id": "4", "x": "72", "y": "0", "width": "24", "height": "26"},
 		
 		{"id": "5", "x": "0", "y": "26", "width": "24", "height": "26"},
 		{"id": "6", "x": "24", "y": "26", "width": "24", "height": "26"},
 		{"id": "7", "x": "48", "y": "26", "width": "24", "height": "26"},
-		{"id": "8", "x": "74", "y": "26", "width": "24", "height": "26"},
+		{"id": "8", "x": "72", "y": "26", "width": "24", "height": "26"},
 		
 		{"id": "9", "x": "0", "y": "52", "width": "24", "height": "26"},
 		{"id": "10", "x": "24", "y": "52", "width": "24", "height": "26"},
 		{"id": "11", "x": "48", "y": "52", "width": "24", "height": "26"},
-		{"id": "12", "x": "74", "y": "52", "width": "24", "height": "26"},
+		{"id": "12", "x": "72", "y": "52", "width": "24", "height": "26"},
 		
 		{"id": "13", "x": "0", "y": "78", "width": "24", "height": "26"},
 		{"id": "14", "x": "24", "y": "78", "width": "24", "height": "26"},
 		{"id": "15", "x": "48", "y": "78", "width": "24", "height": "26"},
-		{"id": "16", "x": "74", "y": "78", "width": "24", "height": "26"},
+		{"id": "16", "x": "72", "y": "78", "width": "24", "height": "26"},
 	])	
 	
 	spritemanager.SpriteManager.loadDefinition('bot', 'resources/images/bot.png', [
 		{"id": "1", "x": "0", "y": "0", "width": "24", "height": "26"},
 		{"id": "2", "x": "24", "y": "0", "width": "24", "height": "26"},
 		{"id": "3", "x": "48", "y": "0", "width": "24", "height": "26"},
-		{"id": "4", "x": "74", "y": "0", "width": "24", "height": "26"},
+		{"id": "4", "x": "72", "y": "0", "width": "24", "height": "26"},
 		
 		{"id": "5", "x": "0", "y": "26", "width": "24", "height": "26"},
 		{"id": "6", "x": "24", "y": "26", "width": "24", "height": "26"},
 		{"id": "7", "x": "48", "y": "26", "width": "24", "height": "26"},
-		{"id": "8", "x": "74", "y": "26", "width": "24", "height": "26"},
+		{"id": "8", "x": "72", "y": "26", "width": "24", "height": "26"},
 		
 		{"id": "9", "x": "0", "y": "52", "width": "24", "height": "26"},
 		{"id": "10", "x": "24", "y": "52", "width": "24", "height": "26"},
 		{"id": "11", "x": "48", "y": "52", "width": "24", "height": "26"},
-		{"id": "12", "x": "74", "y": "52", "width": "24", "height": "26"},
+		{"id": "12", "x": "72", "y": "52", "width": "24", "height": "26"},
 		
 		{"id": "13", "x": "0", "y": "78", "width": "24", "height": "26"},
 		{"id": "14", "x": "24", "y": "78", "width": "24", "height": "26"},
 		{"id": "15", "x": "48", "y": "78", "width": "24", "height": "26"},
-		{"id": "16", "x": "74", "y": "78", "width": "24", "height": "26"},
+		{"id": "16", "x": "72", "y": "78", "width": "24", "height": "26"},
 	])
 	
 	spritemanager.SpriteManager.loadDefinition('world', 'resources/images/world.png', [

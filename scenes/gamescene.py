@@ -34,6 +34,8 @@ class GameScene(object):
 	hasKey = False
 	doorsUnlocked = False
 	
+	lastCheckpoint = None
+	
 	def NextMessage(self):
 		if self.showMessages == False:
 			return
@@ -84,7 +86,6 @@ class GameScene(object):
 			for x in range(0, len(self.currentRoom["bots"])):			
 			
 				bot = self.currentRoom["bots"][x]
-				print(bot["current_waypoint"])
 				
 				if "x" in bot:
 					pass
@@ -95,17 +96,18 @@ class GameScene(object):
 					pass
 				else:
 					bot["y"] = bot["waypoints"][bot["current_waypoint"]]["y"]
+					
 				
 				current_waypoint = bot["waypoints"][bot["current_waypoint"]]
 				
 				distance_x = abs(int(bot["x"]) - int(current_waypoint["x"]))
 				distance_y = abs(int(bot["y"]) - int(current_waypoint["y"]))
-				
-				print(distance_y)
-				print(distance_x)
-				
+								
 				if (distance_x < (int(bot["speed"]) * 2)) and (distance_y < (int(bot["speed"]) * 2)):
 					# we can move to next 
+					
+					bot["animation_state"] = 1
+					bot["facing_direction"] = 1
 					
 					if (len(bot["waypoints"]) - 1) == bot["current_waypoint"]:
 						# last waypoint
@@ -131,14 +133,25 @@ class GameScene(object):
 					if bot["current_waypoint"] == -1:
 						bot["current_waypoint"] = 1		
 						bot["reversing"] = False
-				else:					
+				else:	
+								
+					if "animation_state" not in bot:
+						bot["animation_state"] = 1
+					else:
+						bot["animation_state"] += 1
+						
+					if bot["animation_state"] > 4:
+						bot["animation_state"] = 1					
+				
 					# only move if need to
 					if (distance_x > (int(bot["speed"]) * 2)):
 					
 						moveX = int(bot["speed"])
+						bot["facing_direction"] = 3
 					
 						if(int(bot["x"]) > int(current_waypoint["x"])):
 							moveX = moveX * -1
+							bot["facing_direction"] = 4
 							
 						bot["x"] += moveX
 					
@@ -148,14 +161,74 @@ class GameScene(object):
 					if (distance_y > (int(bot["speed"]) * 2)):					
 					
 						moveY = int(bot["speed"])
+						bot["facing_direction"] = 1
 					
 						if(int(bot["y"]) > int(current_waypoint["y"])):
 							moveY = moveY * -1
+							bot["facing_direction"] = 2
 							
 						bot["y"] += moveY
 					else:
 						bot["y"] = int(current_waypoint["y"])
 				
+												
+				# Check if player intersects with bot
+				
+				# find where the player is in relation
+				xDistance = int(bot["x"]) - int(self.xLocation)
+				yDistance = int(bot["y"]) - int(self.yLocation)
+				
+				player_direction = 0
+				
+				if abs(xDistance) > abs(yDistance):
+					if xDistance < 0:
+						# right
+						player_direction = 3
+					else:
+						# left
+						player_direction = 4
+				else:
+					if yDistance < 0:
+						#down
+						player_direction = 1
+					else:
+						# up
+						player_direction = 2
+					
+				# is the bot facing the player
+				facing_direction = int(bot["facing_direction"])
+				
+				colliderWidth = 0
+				colliderHeight = 0
+				colliderX = 0
+				colliderY = 0
+								
+				if facing_direction == 1:
+					colliderX = int(bot["x"]) + 24
+					colliderY = int(bot["y"]) + 26
+					colliderWidth = 24
+					colliderHeight = 50				
+				
+				if facing_direction == 2:
+					colliderX = int(bot["x"])
+					colliderY = int(bot["y"])
+					colliderWidth = 24
+					colliderHeight = 50
+										
+				if facing_direction == 3:
+					colliderX = int(bot["x"]) + 24
+					colliderY = int(bot["y"])
+					colliderWidth = 50
+					colliderHeight = 26					
+					
+				if facing_direction == 4:
+					colliderX = int(bot["x"]) - 50
+					colliderY = int(bot["y"])
+					colliderWidth = 50
+					colliderHeight = 26			
+				
+				if self.DoesTriggerCollide(self.xLocation, self.yLocation, {"x": colliderX, "y": colliderY, "width": colliderWidth, "height": colliderHeight}):
+					self.HandleTrigger({"id": "caught_in_the_act"})
 								
 							
 		# Calculate current colliders		
@@ -262,10 +335,23 @@ class GameScene(object):
 					# it has already triggered but wasnt this time, remove it
 					self.triggersAlreadyTriggered.remove(self.currentRoom["triggers"][x])
 					print("leave trigger")
-				
+			
+	def GoToLastCheckpoint(self):		
+		if self.lastCheckpoint is not None:
+			self.xLocation = int(self.lastCheckpoint["x"]) + 12
+			self.yLocation = int(self.lastCheckpoint["y"]) + 13
+			
 	def HandleTrigger(self, trigger):
-	
-		print(trigger["id"])
+			
+		if trigger["id"] == "caught_in_the_act":
+			self.messages.append({
+				"title": "BZZZT! WHO GOES THERE?",
+				"body": "- In a whisk, the bot teleports you out of the way - "
+			})
+			
+			self.showMessages = True
+			
+			self.GoToLastCheckpoint()
 		
 		if trigger["id"] == "exit_cage_trigger":
 			self.messages.append({
@@ -326,6 +412,9 @@ class GameScene(object):
 				self.hasKey = True
 				
 				self.showMessages = True
+				
+		if "is_checkpoint" in trigger:
+			self.lastCheckpoint = {"x": trigger["x"], "y": trigger["y"]}
 	
 	def LoadScene(self, index):
 		
@@ -871,24 +960,22 @@ class GameScene(object):
 			
 			for x in range(0, len(self.currentRoom["bots"])):
 				bot = self.currentRoom["bots"][x]
-				
-				# Calculate facing direction
-				bot["facingDirection"] = 1
-				bot["animationState"] = 1
-				
+								
 				if "x" not in bot:
 					bot["x"] = bot["waypoints"][0]["x"]
 					
 				if "y" not in bot:
-					bot["y"] = bot["waypoints"][0]["y"]
-				
+					bot["y"] = bot["waypoints"][0]["y"]					
+							
 				# Calculate animation state				
 				relativeX = int(bot["x"]) + 430 - self.xLocation
 				relativeY = int(bot["y"]) + 320 - self.yLocation
 				
-				botSheetIndex = ((int(bot["facingDirection"]) - 1) * 4) + int(bot["animationState"])
+				botSheetIndex = ((int(bot["facing_direction"]) - 1) * 4) + int(bot["animation_state"])
 				
 				toDraw = sprite_manager.getSpriteById(botSheet, botSheetIndex)
+				
+				print(relativeX)
 				
 				screen.blit(botSheet["image"], (relativeX, relativeY), (int(toDraw["x"]), int(toDraw["y"]), int(toDraw["width"]), int(toDraw["height"])))
 				
@@ -935,6 +1022,9 @@ class GameScene(object):
 			if len(self.messages) == 0:
 				self.showMessages = False
 			else:	
+				# Lower box
+				pygame.draw.rect(screen, (150, 150, 150), (430 - 300, 640 - 170, 600, 120))
+			
 				# Box
 				pygame.draw.rect(screen, (234, 234, 234), (430 - 290, 640 - 160, 580, 100))
 				
