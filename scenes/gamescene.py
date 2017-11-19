@@ -73,10 +73,10 @@ class GameScene(object):
 		self.hasKey = False
 		self.doorsUnlocked = False
 
-	def Update(self):	
-		
+	def Update(self, tick_delay):
+		global_movement_multiplier = tick_delay / 20
 		self.someMovementKeyPressed = False
-	
+		
 		if self.roomToLoad is not None:
 			self.currentRoom = self.roomToLoad
 			self.roomToLoad = None
@@ -146,7 +146,7 @@ class GameScene(object):
 					# only move if need to
 					if (distance_x > (int(bot["speed"]) * 2)):
 					
-						moveX = int(bot["speed"])
+						moveX = int(bot["speed"]) * global_movement_multiplier
 						bot["facing_direction"] = 3
 					
 						if(int(bot["x"]) > int(current_waypoint["x"])):
@@ -160,7 +160,8 @@ class GameScene(object):
 						
 					if (distance_y > (int(bot["speed"]) * 2)):					
 					
-						moveY = int(bot["speed"])
+						moveY = int(bot["speed"]) * global_movement_multiplier
+						
 						bot["facing_direction"] = 1
 					
 						if(int(bot["y"]) > int(current_waypoint["y"])):
@@ -251,14 +252,17 @@ class GameScene(object):
 	
 		# Ghost update		
 		if self.playerIsGhostActive == True:
-			self.playerGhostValue -= 1
+			self.playerGhostValue -= (1 * global_movement_multiplier)
 			
 			if self.playerGhostValue <= 0:
 				self.playerIsGhostActive = False
 				
 		if self.playerIsGhostActive == False:			
 			if self.playerGhostValue < 100:
-				self.playerGhostValue += 1				
+				self.playerGhostValue += (1 * global_movement_multiplier)	
+
+			if self.playerGhostValue > 100:
+				self.playerGhostValue = 100		
 	
 			
 		for event in pygame.event.get():
@@ -278,30 +282,29 @@ class GameScene(object):
 		
 		# Player key input
 		if keys[pygame.K_a]:
-			destinedX -= self.playerMoveSpeed
+			destinedX -= (self.playerMoveSpeed * global_movement_multiplier)
 			self.playerDirection = 4
 			self.someMovementKeyPressed = True
 			
 		if keys[pygame.K_w]:
-			destinedY -= self.playerMoveSpeed
+			destinedY -= (self.playerMoveSpeed * global_movement_multiplier)
 			self.playerDirection = 2
 			self.someMovementKeyPressed = True
 			
 		if keys[pygame.K_d]:
-			destinedX += self.playerMoveSpeed
+			destinedX += (self.playerMoveSpeed * global_movement_multiplier)
 			self.playerDirection = 3
 			self.someMovementKeyPressed = True
 			
 		if keys[pygame.K_s]:
-			destinedY += self.playerMoveSpeed
+			destinedY += (self.playerMoveSpeed * global_movement_multiplier)
 			self.playerDirection = 1	
 			self.someMovementKeyPressed = True		
 
 		if keys[pygame.K_e]:
 			if self.playerIsGhostActive == False and self.playerGhostValue == 100:
 				self.playerIsGhostActive = True
-
-				
+			
 		# Make sure theres no interraction with the world
 		# The idea here is to test each one and say "hey does this fit" with the old co-ordinate and then move it if it is ok
 		if not self.DoesCollideWithWorld(destinedX, self.yLocation):
@@ -362,7 +365,15 @@ class GameScene(object):
 			self.showMessages = True
 			
 		if trigger["id"] == "stair_trigger":
-			self.roomToLoad = self.LoadScene(1)			
+			self.roomToLoad = self.LoadScene(1)		
+
+		if trigger["id"] == "load_level_2":
+			self.roomToLoad = self.LoadScene(2)		
+			self.messages.append({
+				"title": "You exit, in a pool of darkness, realising that even though you",
+				"body": "escaped the stronghold you will never escape the demons inside of you."
+			})			
+			self.showMessages = True
 
 		if trigger["id"] == "attempt_down_stairs":
 			self.messages.append({
@@ -419,6 +430,17 @@ class GameScene(object):
 	def LoadScene(self, index):
 		
 		self.triggersAlreadyTriggered = []
+
+		if index == 2:
+			curRoom = {}
+
+			curRoom["light"] = 100
+			curRoom["color"] = (30, 30, 30)
+
+			curRoom["objects"] =[]
+			curRoom["triggers"] = []
+
+			return curRoom
 		
 		if index == 1:
 		
@@ -433,6 +455,13 @@ class GameScene(object):
 			curRoom["color"] = (57, 72, 81)
 			
 			curRoom["triggers"] = [
+				{
+					"id": "load_level_2", 
+					"x": "260", 
+					"y": "-90",
+					"height": 20,
+					"width": 100
+				},	
 				{
 					"x": "10",
 					"y": "235",
@@ -485,6 +514,19 @@ class GameScene(object):
 						{"x": 575, "y": 160},	
 						{"x": 575, "y": 420},
 						{"x": 475, "y": 420}						
+					],
+					"speed": 1,
+					"visibility": 70,
+					"current_waypoint": 0,
+					"should_reverse": False
+				},
+				{
+					"id": 1,
+					"waypoints": [
+						{"x": 575, "y": 420},
+						{"x": 475, "y": 420},
+						{"x": 475, "y": 160},
+						{"x": 575, "y": 160}					
 					],
 					"speed": 1,
 					"visibility": 70,
@@ -708,12 +750,21 @@ class GameScene(object):
 				{"id": "7", "x": "610", "y": "160"},
 				{"id": "7", "x": "610", "y": "210"},
 				{"id": "7", "x": "610", "y": "260"},
+
+
 				{"id": "7", "x": "610", "y": "360"},
 				{"id": "7", "x": "610", "y": "410"},
 				
 				# key
 				{"id": "8", "x": "675", "y": "175"},
 				
+
+				
+				{"id": "4", "x": "610", "y": "310"},
+				{"id": "4", "x": "610", "y": "330"},
+
+				{"id": "4", "x": "410", "y": "310"},
+				{"id": "4", "x": "410", "y": "330"},
 				
 				# door 				
 				{"id": "6", "x": "210", "y": "60"},
@@ -975,18 +1026,7 @@ class GameScene(object):
 				
 				toDraw = sprite_manager.getSpriteById(botSheet, botSheetIndex)
 				
-				print(relativeX)
-				
 				screen.blit(botSheet["image"], (relativeX, relativeY), (int(toDraw["x"]), int(toDraw["y"]), int(toDraw["width"]), int(toDraw["height"])))
-				
-				for y in range(0, len(bot["waypoints"])):
-					waypoint = bot["waypoints"][y]
-					
-					if y is not 0:
-						otherPoint = bot["waypoints"][y - 1]						
-						pygame.draw.line(screen, (255, 131, 0), ((int(otherPoint["x"]) + 430 - self.xLocation + 25), int(otherPoint["y"]) + 320 - self.yLocation), (int(waypoint["x"]) + 430 - self.xLocation + 25, int(waypoint["y"]) + 320 - self.yLocation))
-				
-	
 				
 		# Draw Player
 		playerSheet = sprite_manager.getSheet("player")

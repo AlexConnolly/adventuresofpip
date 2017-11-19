@@ -4,7 +4,7 @@ from scenes import gamescene
 import spritemanager
 
 pygame.init()
-pygame.font.init()	
+pygame.font.init()
 
 def RunGame(width, height, fps, scene):
 	screen = pygame.display.set_mode((width, height))
@@ -70,18 +70,16 @@ def RunGame(width, height, fps, scene):
 	])
 	
 	while current_scene != None:
+                
+		# Running through
+		tick_delay = clock.tick(fps)
 	
 		# Engine update procedure
-		input_keys = pygame.key.get_pressed()		
-		
-		current_scene.Update()
+		current_scene.Update(tick_delay)
 		
 		# Engine draw procedure
 		current_scene.Draw(screen, spritemanager.SpriteManager)			
 		pygame.display.flip()
-		
-		# Running through
-		clock.tick(fps)
 
 		
 RunGame(860, 640, 60, gamescene.GameScene())		
